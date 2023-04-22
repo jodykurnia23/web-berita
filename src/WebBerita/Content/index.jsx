@@ -9,7 +9,8 @@ import Col from 'react-bootstrap/Col';
 import axios from 'axios';
 
 const Content = () => {
-    let [berita, setBerita] = useState();
+    const [berita, setBerita] = useState([]);
+    const [searchQuery, setSearchQuery] = useState("");
     const url = 'https://newsapi.org/v2/top-headlines?country=id&apiKey=e10ef662f34d416eb904dde5c92902c3';
 
     useEffect(() => {
@@ -20,7 +21,7 @@ const Content = () => {
         try{
             const { data } = await axios.get(url)
 
-            setBerita(data);
+            setBerita(data.articles);
         } catch (eror) {
             console.log(eror, '<== Eror terjadi di News Categories')
         }
@@ -42,14 +43,32 @@ const Content = () => {
         })
     }
 
+    const handleInputChange = (event) => {
+        setSearchQuery(event.target.value);
+      }
+
+      useEffect(() => {
+        const fetchFilteredArticles = async () => {
+          const result = await axios(
+            `https://newsapi.org/v2/top-headlines?q=${searchQuery}&apiKey=e10ef662f34d416eb904dde5c92902c3&language=id`
+          );
+          setBerita(result.data.articles);
+        };
+    
+        fetchFilteredArticles();
+      }, [searchQuery]);
+
     return ( 
         <Container>
-            <Form className="d-flex mb-5" >
+            <Form className="d-flex mb-5">
                     <Form.Control
                     type="search"
                     placeholder="Search"
                     className="me-2 input-keyword"
-                    aria-label="Search" />
+                    aria-label="Search" 
+                    value={searchQuery} 
+                    onChange={handleInputChange} 
+                    />
                     <Button variant="outline-primary search_button">Search</Button>
             </Form>
             <Row>
